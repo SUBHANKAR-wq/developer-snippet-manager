@@ -1,23 +1,51 @@
-import logo from './logo.svg';
-import './App.css';
+import React, { useState, useEffect } from "react";
+import AddSnippet from "./components/AddSnippet";
+import SnippetList from "./components/SnippetList";
+import SearchBar from "./components/SearchBar";
 
 function App() {
+
+  const [snippets, setSnippets] = useState([]);
+  const [search, setSearch] = useState("");
+
+  useEffect(() => {
+    const stored = JSON.parse(localStorage.getItem("snippets"));
+    if (stored) {
+      setSnippets(stored);
+    }
+  }, []);
+
+  useEffect(() => {
+    localStorage.setItem("snippets", JSON.stringify(snippets));
+  }, [snippets]);
+
+  const addSnippet = (snippet) => {
+    setSnippets([...snippets, snippet]);
+  };
+
+  const deleteSnippet = (id) => {
+    const filtered = snippets.filter((s) => s.id !== id);
+    setSnippets(filtered);
+  };
+
+  const filteredSnippets = snippets.filter((s) =>
+    s.title.toLowerCase().includes(search.toLowerCase())
+  );
+
   return (
-    <div className="App">
-      <header className="App-header">
-        <img src={logo} className="App-logo" alt="logo" />
-        <p>
-          Edit <code>src/App.js</code> and save to reload.
-        </p>
-        <a
-          className="App-link"
-          href="https://reactjs.org"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          Learn React
-        </a>
-      </header>
+    <div className="container">
+
+      <h1>Developer Snippet Manager</h1>
+
+      <SearchBar setSearch={setSearch} />
+
+      <AddSnippet addSnippet={addSnippet} />
+
+      <SnippetList
+        snippets={filteredSnippets}
+        deleteSnippet={deleteSnippet}
+      />
+
     </div>
   );
 }
